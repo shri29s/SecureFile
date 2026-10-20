@@ -63,8 +63,10 @@ Start the services using [startup instructions](startup.md), then run:
 
 \`\`\`powershell
 npm test
+# Stop the proxy before live tests; restart it before benchmarks.
 npm run test:integration
 npm run build
+# In a separate terminal: npm start
 npm run bench
 npm run bench:crypto
 npm run evaluation:report

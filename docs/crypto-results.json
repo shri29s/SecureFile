@@ -1,0 +1,332 @@
+{
+  "generatedAt": "2026-10-20T17:39:24.649Z",
+  "environment": {
+    "node": "v24.15.0",
+    "os": "win32 10.0.26200",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "repeats": 10,
+    "note": "Node WebCrypto using shared client code; one warmup per size. Excludes key generation, metadata packing, HTTP, IPFS, and blockchain."
+  },
+  "results": [
+    {
+      "size": 1024,
+      "repeat": 1,
+      "encryptMs": 0.21999999999999886,
+      "decryptMs": 0.17260000000000275,
+      "hmacMs": 0.13940000000000197,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 2,
+      "encryptMs": 0.19010000000000105,
+      "decryptMs": 0.11410000000000053,
+      "hmacMs": 0.08380000000000365,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 3,
+      "encryptMs": 0.10320000000000107,
+      "decryptMs": 0.06400000000000006,
+      "hmacMs": 0.042200000000001125,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 4,
+      "encryptMs": 0.09680000000000177,
+      "decryptMs": 0.08039999999999736,
+      "hmacMs": 0.0812000000000026,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 5,
+      "encryptMs": 0.10090000000000288,
+      "decryptMs": 0.11379999999999768,
+      "hmacMs": 0.09020000000000294,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 6,
+      "encryptMs": 0.10150000000000148,
+      "decryptMs": 0.09009999999999962,
+      "hmacMs": 0.0625,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 7,
+      "encryptMs": 0.14620000000000033,
+      "decryptMs": 0.08089999999999975,
+      "hmacMs": 0.050399999999996226,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 8,
+      "encryptMs": 0.10540000000000305,
+      "decryptMs": 0.09980000000000189,
+      "hmacMs": 0.06349999999999767,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 9,
+      "encryptMs": 0.10509999999999309,
+      "decryptMs": 0.08099999999999596,
+      "hmacMs": 0.08670000000000044,
+      "blobBytes": 1053
+    },
+    {
+      "size": 1024,
+      "repeat": 10,
+      "encryptMs": 0.6848000000000027,
+      "decryptMs": 0.12769999999999726,
+      "hmacMs": 0.08420000000000272,
+      "blobBytes": 1053
+    },
+    {
+      "size": 65536,
+      "repeat": 1,
+      "encryptMs": 0.15050000000000097,
+      "decryptMs": 0.22459999999999525,
+      "hmacMs": 0.13299999999999557,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 2,
+      "encryptMs": 0.14399999999999835,
+      "decryptMs": 0.15370000000000061,
+      "hmacMs": 0.1414000000000044,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 3,
+      "encryptMs": 0.126100000000001,
+      "decryptMs": 0.1559000000000026,
+      "hmacMs": 0.13110000000000355,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 4,
+      "encryptMs": 0.13989999999999725,
+      "decryptMs": 0.14099999999999824,
+      "hmacMs": 0.12129999999999797,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 5,
+      "encryptMs": 0.25090000000000146,
+      "decryptMs": 0.2231000000000023,
+      "hmacMs": 0.16859999999999786,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 6,
+      "encryptMs": 0.18410000000000082,
+      "decryptMs": 0.18890000000000384,
+      "hmacMs": 0.13410000000000366,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 7,
+      "encryptMs": 0.1535999999999973,
+      "decryptMs": 0.14629999999999654,
+      "hmacMs": 0.1326000000000036,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 8,
+      "encryptMs": 0.1407999999999987,
+      "decryptMs": 0.14260000000000161,
+      "hmacMs": 0.12120000000000175,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 9,
+      "encryptMs": 0.14239999999999498,
+      "decryptMs": 0.14329999999999643,
+      "hmacMs": 0.12429999999999808,
+      "blobBytes": 65565
+    },
+    {
+      "size": 65536,
+      "repeat": 10,
+      "encryptMs": 0.1576999999999984,
+      "decryptMs": 0.14970000000000283,
+      "hmacMs": 0.11349999999999483,
+      "blobBytes": 65565
+    },
+    {
+      "size": 1048576,
+      "repeat": 1,
+      "encryptMs": 1.5814000000000021,
+      "decryptMs": 1.647599999999997,
+      "hmacMs": 1.269999999999996,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 2,
+      "encryptMs": 1.7609000000000066,
+      "decryptMs": 1.6865999999999985,
+      "hmacMs": 1.3920000000000101,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 3,
+      "encryptMs": 1.5544000000000011,
+      "decryptMs": 1.7399999999999949,
+      "hmacMs": 1.4285999999999888,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 4,
+      "encryptMs": 1.7335000000000065,
+      "decryptMs": 1.6843999999999966,
+      "hmacMs": 1.3738000000000028,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 5,
+      "encryptMs": 1.7181000000000068,
+      "decryptMs": 1.6750000000000114,
+      "hmacMs": 1.404900000000012,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 6,
+      "encryptMs": 1.7044000000000068,
+      "decryptMs": 1.725200000000001,
+      "hmacMs": 1.3520000000000039,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 7,
+      "encryptMs": 1.8396000000000043,
+      "decryptMs": 1.9703000000000088,
+      "hmacMs": 1.3853000000000009,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 8,
+      "encryptMs": 1.6920999999999964,
+      "decryptMs": 1.6296999999999997,
+      "hmacMs": 1.3680999999999983,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 9,
+      "encryptMs": 1.8075000000000045,
+      "decryptMs": 1.6905000000000001,
+      "hmacMs": 1.4144000000000005,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 1048576,
+      "repeat": 10,
+      "encryptMs": 1.9144000000000005,
+      "decryptMs": 2.0357999999999947,
+      "hmacMs": 1.4710999999999927,
+      "blobBytes": 1048605
+    },
+    {
+      "size": 10485760,
+      "repeat": 1,
+      "encryptMs": 16.016700000000014,
+      "decryptMs": 13.558899999999994,
+      "hmacMs": 13.418599999999998,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 2,
+      "encryptMs": 19.168299999999988,
+      "decryptMs": 13.056600000000003,
+      "hmacMs": 11.975200000000001,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 3,
+      "encryptMs": 16.0557,
+      "decryptMs": 14.052300000000002,
+      "hmacMs": 12.5779,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 4,
+      "encryptMs": 15.45369999999997,
+      "decryptMs": 14.305000000000007,
+      "hmacMs": 11.547599999999989,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 5,
+      "encryptMs": 13.693299999999965,
+      "decryptMs": 14.729600000000005,
+      "hmacMs": 12.095100000000002,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 6,
+      "encryptMs": 15.035200000000032,
+      "decryptMs": 14.649800000000027,
+      "hmacMs": 11.843600000000038,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 7,
+      "encryptMs": 14.53879999999998,
+      "decryptMs": 16.15609999999998,
+      "hmacMs": 12.0668,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 8,
+      "encryptMs": 12.618899999999996,
+      "decryptMs": 12.288400000000024,
+      "hmacMs": 11.098400000000026,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 9,
+      "encryptMs": 12.579099999999983,
+      "decryptMs": 14.431500000000028,
+      "hmacMs": 11.598800000000097,
+      "blobBytes": 10485789
+    },
+    {
+      "size": 10485760,
+      "repeat": 10,
+      "encryptMs": 14.743299999999977,
+      "decryptMs": 14.380300000000034,
+      "hmacMs": 11.980500000000006,
+      "blobBytes": 10485789
+    }
+  ]
+}

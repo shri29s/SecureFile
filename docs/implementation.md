@@ -39,7 +39,7 @@ The file mirror is reconciled from chain at startup. File uploads are only repor
 
 `test/integration.live.js` verifies the deployed Solidity contract rejects a non-proxy writer and exercises real Kubo upload, download, revocation, supersession, signature provenance, key purge, garbage collection, audit reads, and tombstones.
 
-Browser checks cover real IndexedDB identity creation, group creation, upload, decryption, and tab navigation. The benchmark is a small E3 smoke comparison; it is not a statistically controlled performance study. E1/E2/E4/E5/E6 publication-ready experiments remain future work.
+Browser checks cover real IndexedDB identity creation, group creation, upload, decryption, and tab navigation. The evaluation includes repeated E3 lazy/eager comparisons and an E1 shared-client crypto microbenchmark; these are preliminary local measurements, not production performance claims. Full E2/E4/E5/E6 and publication-ready experiments remain future work. See [results and methodology](evaluation.md).
 
 Original filenames and MIME types are stored in a versioned, length-prefixed JSON header inside the encrypted plaintext. Integrity checks cover the entire payload before the client extracts the original file bytes. Migration preserves this header. Legacy uploads without the header use a record-ID .bin filename. Optional chart dashboard, passphrase protection, and ownership transfer are not implemented.
 

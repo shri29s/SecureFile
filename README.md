@@ -2,6 +2,14 @@
 
 Local research demo implementing the `context/` specifications: browser-side AES-256-GCM encryption, IPFS ciphertext storage, a Solidity registry, signed HTTP requests, versioned group keys, and deferred re-encryption.
 
+## Documentation
+
+- [Complete setup, startup and troubleshooting](docs/startup.md)
+- [Implementation details and formats](docs/implementation.md)
+- [Implementation limits and security boundaries](docs/implementation-limits.md)
+- [Measured evaluation and results](docs/evaluation.md)
+- [Original design specifications](context/00_overview.md)
+
 ## Installed environment
 
 - Node 24 / npm; locked dependencies in `package-lock.json`.
@@ -44,7 +52,9 @@ npm run build            # Production UI compilation
 npm run bench            # E3 lazy/eager comparison; creates scratch groups
 ```
 
-Live tests use a separate contract and an in-memory proxy database; they do not reset the user's application. They write test ciphertext to the local IPFS node and exercise garbage collection. The benchmark creates scratch identities/groups and writes `docs/benchmark-results.json`. Defaults: 1, 5, and 10 files of 64 KiB; configure `BENCH_COUNTS` and `BENCH_FILE_BYTES`.
+Live tests use a separate contract and an in-memory proxy database; they do not reset the user's application. Stop the proxy before running live tests and restart it afterward: the test shares its local chain signer and changes the account nonce. Tests write ciphertext to the local IPFS node and exercise garbage collection. The benchmark creates scratch identities/groups and writes `docs/benchmark-results.json`. Defaults: 1, 5, and 10 files of 64 KiB, three trials each; configure `BENCH_COUNTS`, `BENCH_FILE_BYTES`, and `BENCH_REPEATS`.
+
+`npm run bench:crypto` measures the shared client cryptography. After both benchmarks, `npm run evaluation:report` regenerates the report from raw samples.
 
 ## Browser walkthrough
 
