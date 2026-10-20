@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-10-20T13:16:27.297Z",
+  "environment": "Local Hardhat + offline Kubo; one sample per configuration, not a statistical study",
+  "results": [
+    {
+      "n": 1,
+      "fileBytes": 65536,
+      "mode": "lazy",
+      "wallMs": 276.3191999999999,
+      "currentVersion": 2,
+      "elapsedMs": 273.6396999999997,
+      "filesReencrypted": 0,
+      "bytesProcessed": 0
+    },
+    {
+      "n": 1,
+      "fileBytes": 65536,
+      "mode": "eager",
+      "wallMs": 619.3314,
+      "currentVersion": 2,
+      "elapsedMs": 617.0614999999816,
+      "filesReencrypted": 1,
+      "bytesProcessed": 65565
+    },
+    {
+      "n": 5,
+      "fileBytes": 65536,
+      "mode": "lazy",
+      "wallMs": 273.66560000000027,
+      "currentVersion": 2,
+      "elapsedMs": 271.13939999998547,
+      "filesReencrypted": 0,
+      "bytesProcessed": 0
+    },
+    {
+      "n": 5,
+      "fileBytes": 65536,
+      "mode": "eager",
+      "wallMs": 1449.1085000000003,
+      "currentVersion": 2,
+      "elapsedMs": 1446.9082000000053,
+      "filesReencrypted": 5,
+      "bytesProcessed": 327825
+    },
+    {
+      "n": 10,
+      "fileBytes": 65536,
+      "mode": "lazy",
+      "wallMs": 275.34940000000097,
+      "currentVersion": 2,
+      "elapsedMs": 272.85349999999744,
+      "filesReencrypted": 0,
+      "bytesProcessed": 0
+    },
+    {
+      "n": 10,
+      "fileBytes": 65536,
+      "mode": "eager",
+      "wallMs": 2478.5502000000015,
+      "currentVersion": 2,
+      "elapsedMs": 2476.6454000000085,
+      "filesReencrypted": 10,
+      "bytesProcessed": 655650
+    }
+  ]
+}

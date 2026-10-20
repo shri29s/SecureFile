@@ -1,0 +1,2 @@
+SecureFile browser verification.
+This text is encrypted in the browser before it reaches IPFS.
