@@ -32,8 +32,11 @@ export function createApp(service, deployment = { address: '', abi: [] }) {
   route('post', '/groups', (req, u) => s.createGroup(u, req.body?.name));
   route('get', '/groups/:g', (req, u) => s.info(req.params.g, u));
   route('post', '/groups/:g/join-requests', (req, u) => s.join(req.params.g, u));
-  route('get', '/groups/:g/join-requests', (req, u) => { s.owner(req.params.g, u); return s.info(req.params.g, u).members.filter(m => m.status === 'pending'); });
-  route('post', '/groups/:g/members', (req, u) => s.decide(req.params.g, u, req.body?.userId, req.body?.decision));
+  route('get', '/groups/:g/join-requests', (req, u) => { s.admin(req.params.g, u); return s.info(req.params.g, u).members.filter(m => m.status === 'pending'); });
+  route('post', '/groups/:g/members', (req, u) => s.decide(req.params.g, u, req.body?.userId, req.body?.decision, req.body?.role));
+  route('put', '/groups/:g/members/:id/role', (req, u) => s.setRole(req.params.g, u, req.params.id, req.body?.role));
+  route('post', '/groups/:g/transfer-ownership', (req, u) => s.transferOwnership(req.params.g, u, req.body?.newOwnerId));
+  route('delete', '/groups/:g', (req, u) => s.dissolveGroup(req.params.g, u));
   route('get', '/groups/:g/keys/:version', (req, u) => s.keys(req.params.g, u, req.params.version));
   route('post', '/groups/:g/files', (req, u) => s.upload(req.params.g, u, req.body || {}));
   route('get', '/groups/:g/files', (req, u) => s.listFiles(req.params.g, u, req.query.all === '1'));
@@ -47,8 +50,8 @@ export function createApp(service, deployment = { address: '', abi: [] }) {
   route('delete', '/groups/:g/files/:id', (req, u) => s.remove(req.params.g, u, Number(req.params.id)));
   route('delete', '/groups/:g/members/:id', (req, u) => s.revoke(req.params.g, u, req.params.id, false, req.query.mode || 'lazy'));
   route('post', '/groups/:g/leave', (req, u) => s.revoke(req.params.g, u, u, true, 'lazy'));
-  route('get', '/admin/groups/:g/status', (req, u) => { s.owner(req.params.g, u); return s.status(req.params.g); });
-  route('post', '/admin/groups/:g/reencrypt', (req, u) => { s.owner(req.params.g, u); return s.reencrypt(req.params.g); });
+  route('get', '/admin/groups/:g/status', (req, u) => { s.admin(req.params.g, u); return s.status(req.params.g); });
+  route('post', '/admin/groups/:g/reencrypt', (req, u) => { s.admin(req.params.g, u); return s.reencrypt(req.params.g); });
   app.use(express.static(resolve('ui/dist'), { index: 'index.html' }));
   app.use((req, res) => res.status(404).json({ code: 'NOT_FOUND', message: 'Endpoint not found' }));
   app.use((error, _req, res, _next) => {

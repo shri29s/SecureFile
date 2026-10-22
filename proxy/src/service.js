@@ -30,6 +30,17 @@ export class Service {
   member(g, u) { return this.db.prepare('SELECT * FROM group_members WHERE group_id=? AND user_id=?').get(g, u); }
   active(g, u) { const group = this.group(g); if (this.member(g, u)?.status !== 'active') fail(403, 'NOT_MEMBER'); return group; }
   owner(g, u) { const group = this.active(g, u); if (group.owner_id !== u) fail(403, 'NOT_OWNER'); return group; }
+  isAdmin(g, u) {
+    const group = this.group(g);
+    if (group.owner_id === u) return true;
+    const m = this.member(g, u);
+    return m?.status === 'active' && (m.role === 'admin' || m.role === 'owner');
+  }
+  admin(g, u) {
+    this.active(g, u);
+    if (!this.isAdmin(g, u)) fail(403, 'NOT_ADMIN');
+    return this.group(g);
+  }
   auth(req) {
     const id = req.get('X-User-Id'), ts = req.get('X-Timestamp'), nonce = req.get('X-Nonce');
     const user = id && this.user(id); if (!user) fail(401, 'UNKNOWN_USER');
@@ -77,7 +88,7 @@ export class Service {
   info(g, u) {
     const group = this.active(g, u);
     let members = this.db.prepare('SELECT m.user_id userId,u.name,m.role,m.status,m.joined_at createdAt FROM group_members m JOIN users u USING(user_id) WHERE group_id=?').all(g);
-    if (group.owner_id !== u) members = members.filter(m => m.status === 'active');
+    if (!this.isAdmin(g, u)) members = members.filter(m => m.status === 'active');
     return { groupId: g, name: group.name, ownerId: group.owner_id, currentVersion: group.current_version, members };
   }
   join(g, u) {
@@ -85,19 +96,26 @@ export class Service {
     const m = this.member(g, u);
     if (m?.status === 'revoked') fail(403, 'REVOKED');
     if (m?.status === 'active') fail(409, 'ALREADY_MEMBER');
-    this.db.prepare("INSERT INTO group_members VALUES (?,?,'member','pending',?,NULL) ON CONFLICT(group_id,user_id) DO UPDATE SET status='pending',joined_at=excluded.joined_at").run(g, u, Date.now());
+    this.db.prepare("INSERT INTO group_members VALUES (?,?,'contributor','pending',?,NULL) ON CONFLICT(group_id,user_id) DO UPDATE SET status='pending',joined_at=excluded.joined_at").run(g, u, Date.now());
     return { status: 'pending' };
   }
-  async decide(g, u, target, decision) {
-    const group = this.owner(g, u);
+  async decide(g, u, target, decision, requestedRole) {
+    const group = this.admin(g, u);
     if (!['approve', 'reject'].includes(decision)) fail(400, 'BAD_REQUEST');
     if (this.member(g, target)?.status !== 'pending') fail(404, 'NO_PENDING_REQUEST');
     const status = decision === 'approve' ? 'active' : 'rejected';
+    let role = 'contributor';
+    if (status === 'active' && requestedRole) {
+      if (['admin', 'contributor', 'viewer', 'member'].includes(requestedRole)) {
+        if (requestedRole === 'admin' && group.owner_id !== u) fail(403, 'ONLY_OWNER_CAN_ASSIGN_ADMIN');
+        role = requestedRole === 'member' ? 'contributor' : requestedRole;
+      }
+    }
     this.db.transaction(() => {
-      this.db.prepare('UPDATE group_members SET status=?,joined_at=? WHERE group_id=? AND user_id=?').run(status, Date.now(), g, target);
+      this.db.prepare('UPDATE group_members SET status=?,role=?,joined_at=? WHERE group_id=? AND user_id=?').run(status, role, Date.now(), g, target);
       if (status === 'active') this.outbox(g, 1, target, group.current_version);
     })();
-    await this.flushEvents(); return { status };
+    await this.flushEvents(); return { status, role };
   }
   rawKey(g, v) {
     const row = this.db.prepare('SELECT * FROM group_keys WHERE group_id=? AND version=?').get(g, v);
@@ -129,6 +147,8 @@ export class Service {
   }
   async upload(g, u, m) {
     const group = this.active(g, u);
+    const member = this.member(g, u);
+    if (member?.role === 'viewer') fail(403, 'VIEWER_READ_ONLY');
     if (m.groupId !== g || m.uploaderId !== u || !hex(m.contentMac, 64) || !hex(m.ctHash, 64) || !hex(m.nonce, 32) ||
       !Number.isSafeInteger(m.clientTs) || Math.abs(Date.now() - m.clientTs) > 60000 || !Number.isSafeInteger(m.size) ||
       typeof m.blob !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(m.blob)) fail(400, 'BAD_MANIFEST');
@@ -170,7 +190,7 @@ export class Service {
   async remove(g, u, id) {
     const group = this.active(g, u), r = await this.chain.get(id).catch(() => fail(404, 'NO_RECORD'));
     if (r.groupId !== g || r.status !== 'active') fail(404, 'NO_RECORD');
-    if (r.uploaderId !== u && group.owner_id !== u) fail(403, 'NOT_ALLOWED');
+    if (r.uploaderId !== u && !this.isAdmin(g, u)) fail(403, 'NOT_ALLOWED');
     await this.chain.remove(id, u);
     this.db.prepare("UPDATE files SET status='removed' WHERE record_id=?").run(id);
     await this.safeUnpin(r.cid);
@@ -178,8 +198,11 @@ export class Service {
   }
   async revoke(g, u, target, leaving, mode) {
     const start = performance.now();
-    const group = leaving ? this.active(g, u) : this.owner(g, u);
-    if (group.owner_id === target || this.member(g, target)?.status !== 'active') fail(403, 'NOT_ALLOWED');
+    const group = leaving ? this.active(g, u) : this.admin(g, u);
+    if (group.owner_id === target) fail(403, 'NOT_ALLOWED');
+    const targetMember = this.member(g, target);
+    if (targetMember?.status !== 'active') fail(403, 'NOT_ALLOWED');
+    if (!leaving && group.owner_id !== u && targetMember.role === 'admin') fail(403, 'NOT_ALLOWED');
     if (!['lazy', 'eager'].includes(mode)) fail(400, 'BAD_REQUEST');
     if (mode === 'eager' && !this.config.demo) fail(403, 'NOT_ALLOWED');
     const v = group.current_version + 1;
@@ -194,6 +217,51 @@ export class Service {
     if (mode === 'eager') result = await this.reencrypt(g);
     else if (this.status(g).triggerFires) this.enqueue(g);
     return { currentVersion: v, elapsedMs: performance.now() - start, filesReencrypted: result.migrated, bytesProcessed: result.bytesProcessed };
+  }
+  async setRole(g, u, target, newRole) {
+    const group = this.admin(g, u);
+    if (!['admin', 'contributor', 'viewer'].includes(newRole)) fail(400, 'BAD_REQUEST');
+    if (group.owner_id === target) fail(403, 'CANNOT_CHANGE_OWNER_ROLE');
+    const m = this.member(g, target);
+    if (m?.status !== 'active') fail(404, 'MEMBER_NOT_ACTIVE');
+    if ((newRole === 'admin' || m.role === 'admin') && group.owner_id !== u) fail(403, 'ONLY_OWNER_CAN_MANAGE_ADMIN');
+    this.db.transaction(() => {
+      this.db.prepare('UPDATE group_members SET role=? WHERE group_id=? AND user_id=?').run(newRole, g, target);
+      this.outbox(g, 7, target, group.current_version);
+    })();
+    await this.flushEvents();
+    return { success: true, userId: target, role: newRole };
+  }
+  async transferOwnership(g, u, newOwnerId) {
+    const group = this.owner(g, u);
+    if (!newOwnerId || typeof newOwnerId !== 'string') fail(400, 'BAD_REQUEST');
+    if (newOwnerId === u) fail(400, 'ALREADY_OWNER');
+    const target = this.member(g, newOwnerId);
+    if (target?.status !== 'active') fail(400, 'TARGET_NOT_ACTIVE');
+    this.db.transaction(() => {
+      this.db.prepare('UPDATE groups SET owner_id=? WHERE group_id=?').run(newOwnerId, g);
+      this.db.prepare("UPDATE group_members SET role='owner' WHERE group_id=? AND user_id=?").run(g, newOwnerId);
+      this.db.prepare("UPDATE group_members SET role='admin' WHERE group_id=? AND user_id=?").run(g, u);
+      this.outbox(g, 6, newOwnerId, group.current_version);
+    })();
+    await this.flushEvents();
+    return { success: true, previousOwner: u, newOwner: newOwnerId };
+  }
+  async dissolveGroup(g, u) {
+    const group = this.owner(g, u);
+    const files = this.db.prepare('SELECT cid FROM files WHERE group_id=?').all(g);
+    for (const f of files) await this.safeUnpin(f.cid).catch(() => {});
+    this.outbox(g, 8, u, group.current_version);
+    await this.flushEvents();
+    this.db.transaction(() => {
+      this.db.prepare('DELETE FROM reencrypt_jobs WHERE group_id=?').run(g);
+      this.db.prepare('DELETE FROM group_members WHERE group_id=?').run(g);
+      this.db.prepare('DELETE FROM group_keys WHERE group_id=?').run(g);
+      this.db.prepare('DELETE FROM files WHERE group_id=?').run(g);
+      this.db.prepare('DELETE FROM groups WHERE group_id=?').run(g);
+    })();
+    if (this.config.demo) await this.ipfs.gc().catch(() => {});
+    return { dissolved: true, groupId: g };
   }
   status(g) {
     const group = this.group(g);
