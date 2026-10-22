@@ -16,8 +16,18 @@ export function reader(config) {
     audit: async group => {
       const ids = new Set((await contract.getGroupRecords(zeroPadBytes('0x' + group, 32))).map(String));
       const logs = await contract.queryFilter('*', 0, 'latest');
+      const GROUP_KINDS = ['GroupCreated', 'MemberAdded', 'MemberRemoved', 'KeyRotated', 'KeyPurged', 'MemberLeft', 'OwnershipTransferred', 'RoleChanged', 'GroupDissolved'];
       return logs.filter(e => e.args && (e.args.groupId === zeroPadBytes('0x' + group, 32) || ids.has(String(e.args.recordId ?? e.args.oldId))))
-        .map(e => ({ event: e.fragment.name, block: e.blockNumber, txHash: e.transactionHash, details: e.args.toArray().map(String).join(' · ') })).reverse();
+        .map(e => {
+          let event = e.fragment.name;
+          let details = e.args.toArray().map(String).join(' · ');
+          if (event === 'GroupEvent' && e.args.kind !== undefined) {
+            const kind = Number(e.args.kind);
+            event = GROUP_KINDS[kind] || `GroupEvent #${kind}`;
+            details = `Subject: ${String(e.args.subjectId).slice(0, 10)}… · Version: v${e.args.keyVersion}`;
+          }
+          return { event, block: e.blockNumber, txHash: e.transactionHash, details };
+        }).reverse();
     }
   };
 }

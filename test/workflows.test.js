@@ -134,4 +134,47 @@ test('W1–W13 HTTP workflows and security boundaries', async t => {
     assert.equal(eager.filesReencrypted, 2); assert.ok(eager.bytesProcessed > 0);
     assert.equal(s.status(g).versions.find(v => v.version === 3).purgedAt > 0, true);
   });
+  await t.test('RBAC, ownership transfer, and group dissolution', async () => {
+    const grp = (await call(alice, 'POST', '/groups', { name: 'RBAC Group' })).groupId;
+
+    // Join Dave and Bob
+    await call(dave, 'POST', `/groups/${grp}/join-requests`);
+    await call(bob, 'POST', `/groups/${grp}/join-requests`);
+
+    // Approve Dave as viewer, Bob as admin
+    await call(alice, 'POST', `/groups/${grp}/members`, { userId: dave.userId, decision: 'approve', role: 'viewer' });
+    await call(alice, 'POST', `/groups/${grp}/members`, { userId: bob.userId, decision: 'approve', role: 'admin' });
+
+    // Check info returns correct roles
+    const info = await call(alice, 'GET', `/groups/${grp}`);
+    assert.equal(info.members.find(m => m.userId === dave.userId).role, 'viewer');
+    assert.equal(info.members.find(m => m.userId === bob.userId).role, 'admin');
+
+    // Viewer cannot upload
+    const daveKeys = await fetchKey(dave, grp, 'current', base);
+    const daveUpload = await prepareUpload(dave, grp, daveKeys, plain);
+    await denied(call(dave, 'POST', `/groups/${grp}/files`, daveUpload), 'VIEWER_READ_ONLY');
+
+    // Bob (admin) uploads a file successfully
+    const bobKeys = await fetchKey(bob, grp, 'current', base);
+    const bobUpload = await prepareUpload(bob, grp, bobKeys, plain);
+    const uploaded = await call(bob, 'POST', `/groups/${grp}/files`, bobUpload);
+    assert.ok(uploaded.recordId);
+
+    // Admin Bob can promote Dave from viewer to contributor
+    await call(bob, 'PUT', `/groups/${grp}/members/${dave.userId}/role`, { role: 'contributor' });
+    assert.equal((await call(bob, 'GET', `/groups/${grp}`)).members.find(m => m.userId === dave.userId).role, 'contributor');
+
+    // Transfer ownership from Alice to Bob
+    await call(alice, 'POST', `/groups/${grp}/transfer-ownership`, { newOwnerId: bob.userId });
+    const infoAfter = await call(bob, 'GET', `/groups/${grp}`);
+    assert.equal(infoAfter.ownerId, bob.userId);
+    assert.equal(infoAfter.members.find(m => m.userId === bob.userId).role, 'owner');
+    assert.equal(infoAfter.members.find(m => m.userId === alice.userId).role, 'admin');
+
+    // Bob (new owner) can dissolve the group
+    const dissolve = await call(bob, 'DELETE', `/groups/${grp}`);
+    assert.equal(dissolve.dissolved, true);
+    await denied(call(bob, 'GET', `/groups/${grp}`), 'NO_GROUP');
+  });
 });

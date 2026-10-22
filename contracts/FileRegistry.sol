@@ -64,7 +64,7 @@ contract FileRegistry {
         emit FileRemoved(id, requesterId);
     }
     function logGroupEvent(bytes32 groupId, uint8 kind, bytes32 subjectId, uint32 version) external onlyProxy {
-        require(kind <= 5, "BAD_KIND");
+        require(kind <= 8, "BAD_KIND");
         emit GroupEvent(groupId, kind, subjectId, version);
     }
 }
